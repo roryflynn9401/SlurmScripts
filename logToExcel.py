@@ -71,9 +71,13 @@ def main(log_file, output_file, num_cores):
 
     # Function to convert time to seconds
     def convert_time_to_seconds(time_str):
-        minutes, rest = time_str.split(':')
-        seconds, milliseconds = rest.split('.')
-        return int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
+        try:
+            minutes, rest = time_str.split(':')
+            seconds, milliseconds = rest.split('.')
+            return int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
+        except (ValueError, AttributeError):
+            # Handle cases where the value is not in the expected format (e.g., float)
+            return  # or any appropriate default value
 
     # Apply the conversion function to the "total" column
     df['total (s)'] = df['total (s)'].apply(convert_time_to_seconds)
