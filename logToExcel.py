@@ -63,13 +63,14 @@ def main(log_file, output_file, num_cores):
     # Create a new Excel file or load the existing one
     try:
         existing_data = pd.read_excel(output_file)
-        df = existing_data.append(df, ignore_index=True)
+        df = pd.concat([existing_data, df], ignore_index=True)
     except FileNotFoundError:
         pass
 
     # Save the data to an Excel file
     df.to_excel(output_file, index=False)
     print(f"Data saved to {output_file}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
