@@ -67,10 +67,26 @@ def main(log_file, output_file, num_cores):
     except FileNotFoundError:
         pass
 
+    print(df.columns)
+
+    # Function to convert time to seconds
+    def convert_time_to_seconds(time_str):
+        minutes, rest = time_str.split(':')
+        seconds, milliseconds = rest.split('.')
+        return int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
+
+    # Apply the conversion function to the "total" column
+    df['total (s)'] = df['total (s)'].apply(convert_time_to_seconds)
+
+    # Create a new DataFrame for averages
+    averages = df.groupby('Num Cores').agg({'usr (s)': 'mean', 'system (s)': 'mean', 'total (s)': 'mean'}).reset_index()
+
+    # Merge the averages DataFrame back into the original DataFrame
+    df = df.merge(averages, on='Num Cores',  suffixes=('', '_avg'))
+
     # Save the data to an Excel file
     df.to_excel(output_file, index=False)
     print(f"Data saved to {output_file}")
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
