@@ -45,29 +45,16 @@ def extract_data(log_file, num_cores):
 
     return data
 
-def main(log_file, output_file, num_cores):
-    # Check if the log file exists
-    try:
-        with open(log_file, 'r'):
-            pass
-    except FileNotFoundError:
-        print(f"Error: The log file '{log_file}' does not exist.")
-        return
+def main(log_files, output_file):
 
-    # Extract the data from the log file
-    data = extract_data(log_file, num_cores)
+    data = []
+
+    for log_file, num_cores in log_files:
+        extracted_data = extract_data(log_file, num_cores)
+        data.extend(extracted_data)
 
     # Create a DataFrame from the extracted data
     df = pd.DataFrame(data)
-
-    # Create a new Excel file or load the existing one
-    try:
-        existing_data = pd.read_excel(output_file)
-        df = pd.concat([existing_data, df], ignore_index=True)
-    except FileNotFoundError:
-        pass
-
-    print(df.columns)
 
     # Function to convert time to seconds
     def convert_time_to_seconds(time_str):
@@ -77,7 +64,7 @@ def main(log_file, output_file, num_cores):
             return int(minutes) * 60 + int(seconds) + int(milliseconds) / 1000
         except (ValueError, AttributeError):
             # Handle cases where the value is not in the expected format (e.g., float)
-            return  # or any appropriate default value
+            return 0 # or any appropriate default value
 
     # Apply the conversion function to the "total" column
     df['total (s)'] = df['total (s)'].apply(convert_time_to_seconds)
@@ -93,10 +80,9 @@ def main(log_file, output_file, num_cores):
     print(f"Data saved to {output_file}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print("Usage: python script.py log_file output_file num_cores")
+    if len(sys.argv) < 4 or (len(sys.argv) - 2) % 2 != 0:
+        print("Usage: python script.py output_file log_file1 num_cores1 [log_file2 num_cores2 ...]")
     else:
-        log_file = sys.argv[1]
-        output_file = sys.argv[2]
-        num_cores = int(sys.argv[3])
-        main(log_file, output_file, num_cores)
+        output_file = sys.argv[1]
+        log_files = [(sys.argv[i], int(sys.argv[i+1])) for i in range(2, len(sys.argv), 2)]
+        main(log_files, output_file)
