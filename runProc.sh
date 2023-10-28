@@ -41,12 +41,20 @@ for ((i=1; i<=$iterations; i++)); do
     file_name="output$i" 
     if [ -f "$file_name" ]; then
         md5sums+=("$(md5sum "$file_name")")
+        rm "$file_name"
     else
         echo "File $file_name does not exist."
     fi
 done
 
-if [ "$(printf '%s\n' "${md5sums[@]}" | sort -u | wc -l)" -eq 1 ]; then
+hashes=()
+for entry in "${md5sums[@]}"; do
+  hash=$(echo "$entry" | awk '{print $1}')
+  hashes+=("$hash")
+done
+
+# Check if all the MD5 hashes are the same
+if [ "$(printf '%s\n' "${hashes[@]}" | sort -u | wc -l)" -eq 1 ]; then
     echo "All MD5 checksums are the same."
 else
     echo "MD5 checksums are different."
