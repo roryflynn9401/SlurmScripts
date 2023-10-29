@@ -19,7 +19,7 @@ source_file="$fileName.c"
 output_binary="$fileName"
 
 mkdir benchmark"$cpu_cores"
-cp process-a.c rawimage.h input-large.raw search-1.raw benchmark"$cpu_cores"
+cp "$source_file" rawimage.h input-large.raw search-1.raw benchmark"$cpu_cores"
 cd benchmark"$cpu_cores"
 
 # Compile the program with -fopenmp and -std=c99
